@@ -18,6 +18,7 @@
 
 ```
 $ cd front
+$ npm i
 $ npm run build
 ```
 
@@ -25,7 +26,8 @@ $ npm run build
 
 ```
 $ cd backend
-- pipenv run start
+$ pipenv install
+$ pipenv run start
 ```
 
 - `http://127.0.0.1:5000` accesses.

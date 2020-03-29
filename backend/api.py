@@ -8,7 +8,7 @@ class LastFaceRecognitionSuccessList(Resource):
   def get(self):
     success_list = models.get_face_recognition_success_all()
     return [
-      {'id': success.pk, 'recognized_at': success.recognized_at.timestamp()} for success in success_list
+      {'id': x.pk, 'recognized_at': x.recognized_at.timestamp()} for x in success_list
     ]
 
 class CurrentFaceRecognitionState(Resource):

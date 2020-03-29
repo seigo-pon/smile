@@ -21,6 +21,8 @@ class FaceRecognitionStateModel(db.Model):
 
   pk = db.Column(db.Integer, primary_key=True)
   current = db.Column(db.Integer, nullable=False, default=int(FaceRecognitionState.PREPARE))
+  recognized_at = db.Column(db.DateTime, nullable=True)
+  succeed_at = db.Column(db.DateTime, nullable=True)
   updated_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
 def init_db(app):
@@ -40,12 +42,24 @@ def get_face_recognition_state():
 
 def insert_face_recognition_state():
   state = FaceRecognitionStateModel()
-  print(f"state = {state}")
   db.session.add(state)
   db.session.commit()
 
 def update_face_recognition_state(current_state):
   state = get_face_recognition_state()
+
+  if current_state == FaceRecognitionState.PREPARE:
+    state.recognized_at = None
+    state.succeed_at = None
+  elif current_state == FaceRecognitionState.START:
+    if state.recognized_at is None:
+      state.recognized_at = datetime.now()
+  elif current_state == FaceRecognitionState.SUCCESS:
+    if state.succeed_at is None:
+      state.succeed_at = datetime.now()
+
   state.current = int(current_state)
+  state.updated_at = datetime.now()
+
   db.session.add(state)
   db.session.commit()
