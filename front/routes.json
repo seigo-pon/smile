@@ -1,3 +1,4 @@
 {
-  "/api/face": "/face"
+  "/api/last_list": "/last_list",
+  "/api/state": "/state"
 }

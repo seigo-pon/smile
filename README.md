@@ -1,5 +1,5 @@
 # Smile
-- Web site is real time face detection.
+- This web site is real time face detection.
 
 ## Enviroment
 - front

@@ -9,7 +9,7 @@
           <h3 v-bind:class="messageStyle">{{message}}</h3>
         </el-main>
         <el-footer>
-          <el-table stripe class="recog-table" :data="faceRecognitionList">
+          <el-table stripe class="recog-table" :data="lastList">
             <el-table-column align="center" prop="recognized_at" label="Recognized At"></el-table-column>
           </el-table>
         </el-footer>
@@ -23,65 +23,69 @@ const axios = (process.env.VUE_APP_REST_SERVER === 'json-mock')
   : require('axios').create()
 const moment = require('moment')
 
-const RecognizePrepare = 0
-const RecognizeStart = 1
-const RecognizeSuccess = 2
-const RecognizeFail = 3
+const FaceRecognitionStatePrepare = 0
+const FaceRecognitionStateStart = 1
+const FaceRecognitionStateSuccess = 2
+const FaceRecognitionStateFail = 3
 
 export default {
   name: 'home',
   data () {
     return {
-      rexognizeState: RecognizePrepare,
+      state: FaceRecognitionStatePrepare,
       message: "Come on simle!",
-      messageStyle: "face-message-prepare",
-      faceRecognitionList: []
+      messageStyle: "message-prepare",
+      lastList: []
     }
   },
   computed: {
   },
   methods: {
-    setRexognizeState: function (recognizeState) {
-      this.recognizeState = recognizeState
+    setRecognitionState: function (recognizeState) {
+      this.state = recognizeState
 
-      if (this.recognizeState == RecognizePrepare) {
+      if (this.state == FaceRecognitionStatePrepare) {
         this.message = "Come on simle!"
-        this.messageStyle = "face-message-prepare"
-      } else if (this.recognizeState == RecognizeStart) {
+        this.messageStyle = "message-prepare"
+      } else if (this.state == FaceRecognitionStateStart) {
         this.message = "Smile more!"
-        this.messageStyle = "face-message-start"
-      } else if (this.recognizeState == RecognizeSuccess) {
+        this.messageStyle = "message-start"
+      } else if (this.state == FaceRecognitionStateSuccess) {
         this.message = "Good smile!"
-        this.messageStyle = "face-message-success"
-      } else if (this.recognizeState == RecognizeFail) {
+        this.messageStyle = "message-success"
+      } else if (this.state == FaceRecognitionStateFail) {
         this.message = "Sad face!"
-        this.messageStyle = "face-message-fail"
+        this.messageStyle = "message-fail"
       }
     },
-    updateRecognizeFace: async function () {
-      const response = await axios.get('/api/face')
+    updateLastList: async function () {
+      const response = await axios.get('/api/last_list')
 
-      let faceRecognitionList = response.data.map(function (v) {
+      let list = response.data.map(function (v) {
         const unixtime = v["recognized_at"]
         const date = moment(new Date(unixtime * 1000))
         v["recognized_at"] = date.format("YYYY/DD/MM HH:mm:ss")
         return v
       })
-      faceRecognitionList.sort(function (a, b) {
+      list.sort(function (a, b) {
         return (a["id"] > b["id"] ? -1 : 1)
       })
 
-      this.faceRecognitionList = faceRecognitionList
+      this.lastList = list
     },
-    getRealtimeFaceRecognition: function () {
+    getCurrentRecognitionState: async function () {
+      const response = await axios.get('/api/state')
+      const state = response.data
+      console.log(state)
+      this.setRecognitionState(state)
     }
   },
   mounted () {
-    this.setRexognizeState(RecognizePrepare)
-    this.updateRecognizeFace()
-
-    setInterval(function () {
-      this.getRealtimeFaceRecognition()
+    this.setRecognitionState(FaceRecognitionStatePrepare)
+    this.updateLastList()
+    
+    setInterval(() => {
+      this.getCurrentRecognitionState()
     }, 500)
   }
 }
@@ -92,16 +96,16 @@ export default {
   width: 60%;
   margin: auto;
 }
-.face-message-prepare {
+.message-prepare {
   color: #409EFF;
 }
-.face-message-start {
+.message-start {
   color: #E6A23C;
 }
-.face-message-success {
+.message-success {
   color: #67C23A;
 }
-.face-message-fail {
+.message-fail {
   color: #F56C6C;
 }
 .recog-table {

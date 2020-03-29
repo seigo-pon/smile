@@ -5,6 +5,7 @@ import time
 from flask import Flask, render_template, Response
 
 app = Flask(__name__, static_folder='../front/dist/static', template_folder='../front/dist')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mydb.db'
 app.register_blueprint(api.api_bp)
 
 @app.route('/', defaults={'path': ''})
@@ -19,8 +20,10 @@ def face_camera():
 if __name__ == '__main__':
   with app.app_context():
     models.init_db(app)
-    if not models.get_all():
-      models.insert()
+
+    if models.get_face_recognition_state() is None:
+      models.insert_face_recognition_state()
+    models.update_face_recognition_state(models.FaceRecognitionState.PREPARE)
 
   app.run()
 
