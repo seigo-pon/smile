@@ -15,7 +15,7 @@ def index(path):
 
 @app.route('/face_camera')
 def face_camera():
-  return Response(camera.gen(camera.FaceCamera()), mimetype='multipart/x-mixed-replace; boudary=frame')
+  return Response(camera.gen(app, camera.FaceCamera()), mimetype='multipart/x-mixed-replace; boudary=frame')
 
 if __name__ == '__main__':
   with app.app_context():

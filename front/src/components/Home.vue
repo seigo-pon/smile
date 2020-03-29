@@ -44,16 +44,16 @@ export default {
     setRecognitionState: function (recognizeState) {
       this.state = recognizeState
 
-      if (this.state == FaceRecognitionStatePrepare) {
+      if (this.state === FaceRecognitionStatePrepare) {
         this.message = "Come on simle!"
         this.messageStyle = "message-prepare"
-      } else if (this.state == FaceRecognitionStateStart) {
+      } else if (this.state === FaceRecognitionStateStart) {
         this.message = "Smile more!"
         this.messageStyle = "message-start"
-      } else if (this.state == FaceRecognitionStateSuccess) {
+      } else if (this.state === FaceRecognitionStateSuccess) {
         this.message = "Good smile!"
         this.messageStyle = "message-success"
-      } else if (this.state == FaceRecognitionStateFail) {
+      } else if (this.state === FaceRecognitionStateFail) {
         this.message = "Sad face!"
         this.messageStyle = "message-fail"
       }
@@ -75,8 +75,7 @@ export default {
     },
     getCurrentRecognitionState: async function () {
       const response = await axios.get('/api/state')
-      const state = response.data
-      console.log(state)
+      const state = response.data["state"]
       this.setRecognitionState(state)
     }
   },
@@ -86,7 +85,7 @@ export default {
     
     setInterval(() => {
       this.getCurrentRecognitionState()
-    }, 500)
+    }, 1000)
   }
 }
 </script>

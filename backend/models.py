@@ -11,10 +11,10 @@ class FaceRecognitionSuccessModel(db.Model):
   recognized_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
 class FaceRecognitionState(IntEnum):
-  PREPARE = 1
-  START = 2
-  SUCCESS = 3
-  FAILE = 4
+  PREPARE = 0
+  START = 1
+  SUCCESS = 2
+  FAIL = 3
 
 class FaceRecognitionStateModel(db.Model):
   __tablename__ = 'face_recognition_state'

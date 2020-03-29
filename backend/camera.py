@@ -1,6 +1,7 @@
 import cv2
 import models
 import time
+from flask import Flask
 
 class FaceCamera(object):
   def __init__(self):
@@ -40,19 +41,24 @@ def jpeg(frame):
   ret, jpg = cv2.imencode('.jpg', frame, params)
   return jpg.tobytes() if ret else None
 
-def gen(face_camera):
+def gen(app, face_camera):
+  detect_interval = 0
   while True:
     frame = face_camera.get_frame()
     if frame is not None:
       detected_face = detect_face(frame)
       if detected_face is not None:
-        # models.update_face_recognition_state(models.FaceRecognitionState.START)
+        if detect_interval == 0:
+          with app.app_context():
+            models.update_face_recognition_state(models.FaceRecognitionState.START)
         frame = draw_face(frame, detected_face)
-      # else:
-        # models.update_face_recognition_state(models.FaceRecognitionState.PREPARE)
-
+      else:
+        if detect_interval == 0:
+          with app.app_context():
+            models.update_face_recognition_state(models.FaceRecognitionState.PREPARE)
       yield b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + jpeg(frame) + b'\r\n\r\n'
     else:
       yield ""
 
     time.sleep(0.2)
+    detect_interval = detect_interval + 1 if detect_interval >= 5 else 0
