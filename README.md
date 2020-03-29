@@ -1,7 +1,7 @@
 # Smile
 - This web site is real time face detection.
 
-## Enviroment
+## Environment
 - front
   - vue
   - element-ui
