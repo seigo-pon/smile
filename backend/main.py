@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     if models.get_face_recognition_state() is None:
       models.insert_face_recognition_state()
-    models.update_face_recognition_state(models.FaceRecognitionState.PREPARE)
+    models.update_face_recognition_state(models.FaceRecognitionState.NO_FACE, None)
 
   app.run()
 

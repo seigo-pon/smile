@@ -23,16 +23,19 @@ const axios = (process.env.VUE_APP_REST_SERVER === 'json-mock')
   : require('axios').create()
 const moment = require('moment')
 
-const FaceRecognitionStatePrepare = 0
-const FaceRecognitionStateStart = 1
-const FaceRecognitionStateSuccess = 2
-const FaceRecognitionStateFail = 3
+const FaceRecognitionState = new Object({
+  noFace: 0,
+  detectFace: 1,
+  detectSmile: 2,
+  success: 3,
+  fail: 4
+})
 
 export default {
   name: 'home',
   data () {
     return {
-      state: FaceRecognitionStatePrepare,
+      state: FaceRecognitionState.noFace,
       message: "Come on simle!",
       messageStyle: "message-prepare",
       lastList: []
@@ -44,16 +47,19 @@ export default {
     setRecognitionState: function (recognizeState) {
       this.state = recognizeState
 
-      if (this.state === FaceRecognitionStatePrepare) {
+      if (this.state === FaceRecognitionState.noFace) {
+        this.message = "Show your face!"
+        this.messageStyle = "message-no"
+      } else if (this.state === FaceRecognitionState.detectFace) {
         this.message = "Come on simle!"
-        this.messageStyle = "message-prepare"
-      } else if (this.state === FaceRecognitionStateStart) {
+        this.messageStyle = "message-face"
+      } else if (this.state === FaceRecognitionState.detectSmile) {
         this.message = "Smile more!"
-        this.messageStyle = "message-start"
-      } else if (this.state === FaceRecognitionStateSuccess) {
+        this.messageStyle = "message-smile"
+      } else if (this.state === FaceRecognitionState.success) {
         this.message = "Good smile!"
         this.messageStyle = "message-success"
-      } else if (this.state === FaceRecognitionStateFail) {
+      } else if (this.state === FaceRecognitionState.fail) {
         this.message = "Sad face!"
         this.messageStyle = "message-fail"
       }
@@ -75,12 +81,12 @@ export default {
     },
     getCurrentRecognitionState: async function () {
       const response = await axios.get('/api/state')
-      const state = response.data["state"]
+      const state = response.data["current"]
       this.setRecognitionState(state)
     }
   },
   mounted () {
-    this.setRecognitionState(FaceRecognitionStatePrepare)
+    this.setRecognitionState(FaceRecognitionState.noFace)
     this.updateLastList()
     
     setInterval(() => {
@@ -92,13 +98,16 @@ export default {
 
 <style scoped>
 .face-image {
-  width: 60%;
+  width: 50%;
   margin: auto;
 }
-.message-prepare {
+.message-no {
   color: #409EFF;
 }
-.message-start {
+.message-face {
+  color: #409EFF;
+}
+.message-smile {
   color: #E6A23C;
 }
 .message-success {

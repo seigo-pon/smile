@@ -3,7 +3,5 @@
     {"id": 1, "recognized_at": "1585469873.316318"},
     {"id": 2, "recognized_at": "1585469874.316318"}
   ],
-  "state": [
-    {"id": 1, "currebt": 0, "updated_at": "1585469873.316318"}
-  ]
+  "state": {"id": 1, "current": 0, "updated_at": "1585469873.316318"}
 }

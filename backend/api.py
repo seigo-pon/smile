@@ -14,7 +14,7 @@ class LastFaceRecognitionSuccessList(Resource):
 class CurrentFaceRecognitionState(Resource):
   def get(self):
     state = models.get_face_recognition_state()
-    return {'id': state.pk, 'state': state.current}
+    return {'id': state.pk, 'current': state.current}
 
 api = Api(api_bp)
 api.add_resource(LastFaceRecognitionSuccessList, '/last_list')
