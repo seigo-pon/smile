@@ -1,4 +1,4 @@
 {
-  "/api/last_list": "/last_list",
-  "/api/state": "/state"
+  "/api/recoglist": "/recoglist",
+  "/api/recogstate": "/recogstate"
 }

@@ -5,7 +5,7 @@
           <h1>Smile and the world smiles with you.</h1>
         </el-header>
         <el-main>
-          <el-image class="face-image" src="/face_camera" fit="fill" lazy></el-image>
+          <el-image class="face-image" src="/liveface" fit="fill" lazy></el-image>
           <h3 v-bind:class="messageStyle">{{message}}</h3>
         </el-main>
         <el-footer>
@@ -65,7 +65,7 @@ export default {
       }
     },
     updateLastList: async function () {
-      const response = await axios.get('/api/last_list')
+      const response = await axios.get('/api/recoglist')
 
       let list = response.data.map(function (v) {
         const unixtime = v["recognized_at"]
@@ -80,7 +80,7 @@ export default {
       this.lastList = list
     },
     getCurrentRecognitionState: async function () {
-      const response = await axios.get('/api/state')
+      const response = await axios.get('/api/recogstate')
       const state = response.data["current"]
       this.setRecognitionState(state)
     }
