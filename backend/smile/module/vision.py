@@ -1,5 +1,4 @@
 import cv2
-from flask import Flask
 
 class Bbox(object):
   def __init__(self, bbox):

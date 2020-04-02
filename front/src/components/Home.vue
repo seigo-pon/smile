@@ -1,12 +1,11 @@
 <template>
-  <div class="home">
+  <div>
     <el-container>
         <el-header>
-          <h1>Smile and the world smiles with you.</h1>
+          <h1 v-bind:class="messageStyle">{{message}}</h1>
         </el-header>
         <el-main>
-          <el-image class="face-image" src="/liveface" fit="fill" lazy></el-image>
-          <h3 v-bind:class="messageStyle">{{message}}</h3>
+          <el-image class="face-image" v-bind:src="faceImage" fit="fill" lazy></el-image>
         </el-main>
         <el-footer>
           <el-table stripe class="recog-table" :data="lastList">
@@ -18,12 +17,14 @@
 </template>
 
 <script>
-const axios = (process.env.VUE_APP_REST_SERVER === 'json-mock')
+const isDebug = (process.env.VUE_APP_REST_SERVER === 'json-mock')
+const axios = isDebug
   ? require('axios').create({ baseURL: 'http://localhost:3000' })
   : require('axios').create()
 const moment = require('moment')
+const lena = require('../assets/lena.png')
 
-const FaceRecognitionState = new Object({
+const FaceRecogState = new Object({
   noFace: 0,
   detectFace: 1,
   detectSmile: 2,
@@ -35,62 +36,71 @@ export default {
   name: 'home',
   data () {
     return {
-      state: FaceRecognitionState.noFace,
+      state: FaceRecogState.noFace,
       message: "Come on simle!",
       messageStyle: "message-prepare",
-      lastList: []
+      lastList: [],
+      faceImage: isDebug ? lena : "/face/camera"
     }
   },
   computed: {
   },
   methods: {
-    setRecognitionState: function (recognizeState) {
-      this.state = recognizeState
+    setState: function (state) {
+      this.state = state
 
-      if (this.state === FaceRecognitionState.noFace) {
+      if (this.state === FaceRecogState.noFace) {
         this.message = "Show your face!"
         this.messageStyle = "message-no"
-      } else if (this.state === FaceRecognitionState.detectFace) {
+      } else if (this.state === FaceRecogState.detectFace) {
         this.message = "Come on simle!"
         this.messageStyle = "message-face"
-      } else if (this.state === FaceRecognitionState.detectSmile) {
+      } else if (this.state === FaceRecogState.detectSmile) {
         this.message = "Smile more!"
         this.messageStyle = "message-smile"
-      } else if (this.state === FaceRecognitionState.success) {
+      } else if (this.state === FaceRecogState.success) {
         this.message = "Good smile!"
         this.messageStyle = "message-success"
-      } else if (this.state === FaceRecognitionState.fail) {
+      } else if (this.state === FaceRecogState.fail) {
         this.message = "Sad face!"
         this.messageStyle = "message-fail"
       }
     },
     updateLastList: async function () {
-      const response = await axios.get('/api/recoglist')
+      try {
+        const response = await axios.get('/api/face/list')
 
-      let list = response.data.map(function (v) {
-        const unixtime = v["recognized_at"]
-        const date = moment(new Date(unixtime * 1000))
-        v["recognized_at"] = date.format("YYYY/DD/MM HH:mm:ss")
-        return v
-      })
-      list.sort(function (a, b) {
-        return (a["id"] > b["id"] ? -1 : 1)
-      })
+        let list = response.data.map(function (v) {
+          const unixtime = v["recognized_at"]
+          const date = moment(new Date(unixtime * 1000))
+          v["recognized_at"] = date.format("YYYY/DD/MM HH:mm:ss")
+          return v
+        })
+        list.sort(function (a, b) {
+          return (a["id"] > b["id"] ? -1 : 1)
+        })
 
-      this.lastList = list
+        this.lastList = list
+      } catch (error) {
+        console.log(error)
+      }
     },
-    getCurrentRecognitionState: async function () {
-      const response = await axios.get('/api/recogstate')
-      const state = response.data["current"]
-      this.setRecognitionState(state)
+    getState: async function () {
+      try {
+        const response = await axios.get('/api/face/state')
+        const state = response.data["state"]
+        this.setState(state)
+      } catch (error) {
+        console.log(error)
+      }
     }
   },
   mounted () {
-    this.setRecognitionState(FaceRecognitionState.noFace)
+    this.setState(FaceRecogState.noFace)
     this.updateLastList()
-    
+
     setInterval(() => {
-      this.getCurrentRecognitionState()
+      this.getState()
     }, 1000)
   }
 }
@@ -98,8 +108,9 @@ export default {
 
 <style scoped>
 .face-image {
-  width: 50%;
-  margin: auto;
+  margin-left: 10px;
+  margin-right: 10px;
+  margin-bottom: 10px;
 }
 .message-no {
   color: #409EFF;
@@ -117,7 +128,8 @@ export default {
   color: #F56C6C;
 }
 .recog-table {
-  width: 30%;
+  max-width: 200px;
+  width: auto;
   margin: auto;
 }
 </style>

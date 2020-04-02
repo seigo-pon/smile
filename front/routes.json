@@ -1,4 +1,4 @@
 {
-  "/api/recoglist": "/recoglist",
-  "/api/recogstate": "/recogstate"
+  "/api/face/list": "/face_recog_success_list",
+  "/api/face/state": "/face_recog_state"
 }

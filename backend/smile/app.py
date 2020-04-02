@@ -4,8 +4,8 @@ from datetime import datetime
 from flask import Flask, render_template, Response
 from smile.api import api_bp
 from smile.database import init_db
-from smile.live_face import gen_live_face
-from smile.models.models import FaceRecognitionState, FaceRecognitionStateModel
+from smile.face_image import gen_face_image
+from smile.models.models import FaceRecogState, FaceRecogStateModel
 
 def create_app():
   app = Flask(__name__, static_folder='../../front/dist/static', template_folder='../../front/dist')
@@ -17,9 +17,9 @@ def create_app():
   with app.app_context():
     init_db(app)
 
-    if FaceRecognitionStateModel.get() is None:
-      FaceRecognitionStateModel.insert()
-    FaceRecognitionStateModel.update(FaceRecognitionState.NO_FACE, None)
+    if FaceRecogStateModel.get() is None:
+      FaceRecogStateModel.insert()
+    FaceRecogStateModel.update(FaceRecogState.NO_FACE, None)
 
   return app
 
@@ -30,6 +30,6 @@ app = create_app()
 def index(path):
   return render_template('index.html')
 
-@app.route('/liveface')
-def live_face():
-  return Response(gen_live_face(app), mimetype='multipart/x-mixed-replace; boudary=frame')
+@app.route('/face/camera')
+def face_camera():
+  return Response(gen_face_image(app), mimetype='multipart/x-mixed-replace; boudary=frame')

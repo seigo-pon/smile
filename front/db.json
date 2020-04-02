@@ -1,7 +1,7 @@
 {
-  "recoglist": [
+  "face_recog_success_list": [
     {"id": 1, "recognized_at": "1585469873.316318"},
     {"id": 2, "recognized_at": "1585469874.316318"}
   ],
-  "recogstate": {"id": 1, "current": 0}
+  "face_recog_state": {"id": 1, "state": 0}
 }
