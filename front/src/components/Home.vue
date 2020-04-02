@@ -40,32 +40,13 @@ export default {
       message: "Come on simle!",
       messageStyle: "message-prepare",
       lastList: [],
-      faceImage: isDebug ? lena : "/face/camera"
+      faceImage: isDebug ? lena : "/face/camera",
+      updateStateTimer: null
     }
   },
   computed: {
   },
   methods: {
-    setState: function (state) {
-      this.state = state
-
-      if (this.state === FaceRecogState.noFace) {
-        this.message = "Show your face!"
-        this.messageStyle = "message-no"
-      } else if (this.state === FaceRecogState.detectFace) {
-        this.message = "Come on simle!"
-        this.messageStyle = "message-face"
-      } else if (this.state === FaceRecogState.detectSmile) {
-        this.message = "Smile more!"
-        this.messageStyle = "message-smile"
-      } else if (this.state === FaceRecogState.success) {
-        this.message = "Good smile!"
-        this.messageStyle = "message-success"
-      } else if (this.state === FaceRecogState.fail) {
-        this.message = "Sad face!"
-        this.messageStyle = "message-fail"
-      }
-    },
     updateLastList: async function () {
       try {
         const response = await axios.get('/api/face/list')
@@ -85,6 +66,28 @@ export default {
         console.log(error)
       }
     },
+    setState: function (state) {
+      this.state = state
+
+      if (this.state === FaceRecogState.noFace) {
+        this.message = "Show your face!"
+        this.messageStyle = "message-no"
+      } else if (this.state === FaceRecogState.detectFace) {
+        this.message = "Come on simle!"
+        this.messageStyle = "message-face"
+      } else if (this.state === FaceRecogState.detectSmile) {
+        this.message = "Smile more!"
+        this.messageStyle = "message-smile"
+      } else if (this.state === FaceRecogState.success) {
+        this.message = "Good smile!"
+        this.messageStyle = "message-success"
+        
+        this.updateLastList()
+      } else if (this.state === FaceRecogState.fail) {
+        this.message = "Sad face!"
+        this.messageStyle = "message-fail"
+      }
+    },
     getState: async function () {
       try {
         const response = await axios.get('/api/face/state')
@@ -93,15 +96,27 @@ export default {
       } catch (error) {
         console.log(error)
       }
+    },
+    setTimer: function () {
+      if (this.updateStateTimer === null) {
+        this.updateStateTimer = setInterval(() => {
+          this.getState()
+        }, 1000)
+      }
     }
   },
   mounted () {
     this.setState(FaceRecogState.noFace)
     this.updateLastList()
-
-    setInterval(() => {
-      this.getState()
-    }, 1000)
+    this.setTimer()
+  },
+  updated () {
+    this.setTimer()
+  },
+  destroyed () {
+    if (this.updateStateTimer) {
+      clearInterval(this.updateStateTimer)
+    }
   }
 }
 </script>

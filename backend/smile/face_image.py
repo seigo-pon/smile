@@ -3,7 +3,26 @@ from abc import *
 from datetime import datetime
 from smile.module.camera import LiveCamera, LiveCameraError, frame_to_jpeg
 from smile.module.vision import detect_face, draw_face, detect_smile, draw_smile
-from smile.models.models import FaceRecogState, FaceRecogStateModel
+from smile.models.models import FaceRecogSuccessModel, FaceRecogState, FaceRecogStateModel
+
+def get_recog_state(app):
+  state = FaceRecogState.NO_FACE
+  with app.app_context():
+    state = FaceRecogStateModel.get()
+  return state
+
+def update_recog_state(app, state, recognized_at):
+  with app.app_context():
+    FaceRecogStateModel.update(state, recognized_at)
+
+def insert_recog_success(app):
+  with app.app_context():
+    FaceRecogSuccessModel.insert()
+
+def is_over_time(src, dest, interval):
+  if src is None or dest is None:
+    return False
+  return (dest - src).seconds > interval
 
 class FaceRecogAction(metaclass=ABCMeta):
   @abstractmethod
@@ -56,7 +75,7 @@ class FaceRecogDetectSmileAction(FaceRecogAction):
 
       smile_bbox = detect_smile(frame, face_bbox)
       if smile_bbox is not None:
-        frame = draw_smile(frame, smile_bbox)
+        frame = draw_smile(frame, face_bbox, smile_bbox)
 
         if is_over_time(state.recognized_at, now, 5):
           update_recog_state(app, FaceRecogState.SUCCESS, now)
@@ -84,10 +103,11 @@ class FaceRecogSuccessAction(FaceRecogAction):
 
       smile_bbox = detect_smile(frame, face_bbox)
       if smile_bbox is not None:
-        frame = draw_smile(frame, smile_bbox)
+        frame = draw_smile(frame, face_bbox, smile_bbox)
 
     if is_over_time(state.recognized_at, now, 5):
       update_recog_state(app, FaceRecogState.NO_FACE, None)
+      insert_recog_success(app)
       action = FaceRecogNoFaceAction()
 
     return (action, frame)
@@ -103,21 +123,6 @@ class FaceRecogFailAction(FaceRecogAction):
       action = FaceRecogNoFaceAction()
 
     return (action, frame)
-
-def get_recog_state(app):
-  state = FaceRecogState.NO_FACE
-  with app.app_context():
-    state = FaceRecogStateModel.get()
-  return state
-
-def update_recog_state(app, state, recognized_at):
-  with app.app_context():
-    FaceRecogStateModel.update(state, recognized_at)
-
-def is_over_time(src, dest, interval):
-  if src is None or dest is None:
-    return False
-  return (dest - src).seconds > interval
 
 def gen_face_image(app):
   try:
