@@ -1,5 +1,6 @@
 # Smile
 - This web site is real time face detection.
+- Detected smile is recording time.
 
 ## Environment
 - front
