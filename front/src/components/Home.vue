@@ -40,11 +40,22 @@ export default {
       message: "Come on simle!",
       messageStyle: "message-prepare",
       lastList: [],
-      faceImage: isDebug ? lena : "/face/camera",
+      token: null,
       updateStateTimer: null
     }
   },
   computed: {
+    faceImage: function () {
+      if (isDebug) {
+        return lena
+      } else {
+        if (this.token != null) {
+          return "/face/camera/" + this.token
+        } else {
+          return null
+        }
+      }
+    }
   },
   methods: {
     updateLastList: async function () {
@@ -89,29 +100,40 @@ export default {
       }
     },
     getState: async function () {
-      try {
-        const response = await axios.get('/api/face/state')
-        const state = response.data["state"]
-        this.setState(state)
-      } catch (error) {
-        console.log(error)
+      if (this.token != null) {
+        try {
+          const response = await axios.get('/api/face/state/' + this.token)
+          this.setState(response.data["state"])
+        } catch (error) {
+          console.log(error)
+        }
       }
     },
     setTimer: function () {
-      if (this.updateStateTimer === null) {
+      if (this.token != null && this.updateStateTimer == null) {
         this.updateStateTimer = setInterval(() => {
           this.getState()
         }, 1000)
+      }
+    },
+    getToken: async function () {
+      if (this.token == null) {
+        try {
+          const response = await axios.get('/api/face/token')
+          this.token = response.data["accesstoken"]
+          this.setTimer()
+        } catch (error) {
+          console.log(error)
+        }
+      } else {
+        this.setTimer()
       }
     }
   },
   mounted () {
     this.setState(FaceRecogState.noFace)
     this.updateLastList()
-    this.setTimer()
-  },
-  updated () {
-    this.setTimer()
+    this.getToken()
   },
   destroyed () {
     if (this.updateStateTimer) {
