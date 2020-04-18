@@ -30,7 +30,7 @@ def detect_smile(frame, bbox):
   gray_face = gray[bbox.y:bbox.y+bbox.h, bbox.x:bbox.x+bbox.w]
 
   smile_cascade = cv2.CascadeClassifier('./data/haarcascade_smile.xml')
-  smile_min_size = (int(bbox.w*0.3), int(bbox.h*0.3))
+  smile_min_size = (int(bbox.w*0.2), int(bbox.h*0.2))
   detected_bboxes = smile_cascade.detectMultiScale(gray_face, scaleFactor=1.2, minNeighbors=10, minSize=smile_min_size)
   if len(detected_bboxes) == 0:
     return None
