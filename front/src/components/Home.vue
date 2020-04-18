@@ -121,18 +121,17 @@ export default {
         try {
           const response = await axios.get('/api/face/token')
           this.token = response.data["accesstoken"]
+
+          this.updateLastList()
           this.setTimer()
         } catch (error) {
           console.log(error)
         }
-      } else {
-        this.setTimer()
       }
     }
   },
   mounted () {
     this.setState(FaceRecogState.noFace)
-    this.updateLastList()
     this.getToken()
   },
   destroyed () {

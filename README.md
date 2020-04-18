@@ -1,6 +1,6 @@
 # Smile
-- This web site is real time face detection.
-- Detected smile is recording time.
+- This web app recognizes smiles in real time.
+- It records a timestamp each time you recognize your smile.
 
 ## Environment
 - front
@@ -30,5 +30,3 @@ $ cd backend
 $ pipenv install
 $ pipenv run start
 ```
-
-- `http://127.0.0.1:5000` accesses.

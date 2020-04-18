@@ -34,8 +34,8 @@ class FaceRecogSuccessModel(db.Model):
   recognized_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
 
   @staticmethod
-  def get_all():
-    return FaceRecogSuccessModel.query.order_by(FaceRecogSuccessModel.pk).all()
+  def get_all(token_id):
+    return FaceRecogSuccessModel.query.filter(FaceRecogSuccessModel.token_id == token_id).order_by(FaceRecogSuccessModel.pk).all()
 
   @staticmethod
   def insert(token_id):
